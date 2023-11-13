@@ -1,7 +1,6 @@
-// import boxen from 'boxen';
+// index.js
 const readlineSync = require('readline-sync');
 let Box = require("cli-box");
-
 
 const logger = {
   readlineSync,
@@ -11,7 +10,10 @@ const Card = require('./src/card.js');
 const Deck = require('./src/deck.js');
 const Game = require('./src/game.js');
 
-// Main
-const game = new Game(Card, Deck, logger);
-game.displayHand();
-game.play();
+function startGame() {
+  const game = new Game(Card, Deck, logger);
+  game.displayHand();
+  game.play();
+}
+
+module.exports = { startGame };

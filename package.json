@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js"
+    "start": "npx run-func index.js startGame"
   },
   "jest": {
     "testMatch": ["**/test/**/*.test.js"]
