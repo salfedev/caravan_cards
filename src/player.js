@@ -1,23 +1,11 @@
 class Player {
-  constructor(name, type) {
-    console.log('player', this);
-    this.name = name;
-    this.type = type;
-    this.hand = [];
-    this.cash = 100;
-  }
-
-  drawInitialHand(deck) {
-    for (let i = 0; i < 8; i++) {
-      this.hand.push(deck.draw());
+    constructor(name) {
+        this.name = name;
+        this.hand = [];
+        this.deck = null;
     }
-  }
 
-  introduce() {
-    console.log(`Player: ${this.name}, Type: ${this.type}`);
-  }
-
-  // ... other methods if needed
+    // Add other necessary methods for Player as needed
 }
 
 module.exports = Player;
