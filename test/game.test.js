@@ -2,17 +2,20 @@ const Game = require('../src/game');
 const Player = require('../src/player');
 
 describe('Game', () => {
-    let game;
+    let game, player, computer;
 
     beforeEach(() => {
         game = new Game();
-        game.addPlayer(new Player('Alice'));
-        game.addPlayer(new Player('Bob'));
+        player = new Player('Alice');
+        computer = new Player('Bob');
+        game.addPlayer(player);
+        game.addPlayer(computer);
         game.dealInitialHand();
     });
 
-    it('should initialize the game with two players', () => {
-        expect(game.players.length).toBe(2);
+    it('should deal 8 cards to each player', () => {
+        expect(player.hand.length).toBe(8);
+        expect(computer.hand.length).toBe(8);
     });
 
     it('should deal 8 cards to each player', () => {
