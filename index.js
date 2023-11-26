@@ -1,19 +1,12 @@
-// index.js
-const readlineSync = require('readline-sync');
-let Box = require("cli-box");
+const Game = require('./src/game');
+const Player = require('./src/player');
 
-const logger = {
-  readlineSync,
-  Box  
-}
-const Card = require('./src/card.js');
-const Deck = require('./src/deck.js');
-const Game = require('./src/game.js');
+const game = new Game();
+const player = new Player("Player 1");
+const computer = new Player("Computer");
 
-function startGame() {
-  const game = new Game(Card, Deck, logger);
-  game.displayHand();
-  game.play();
-}
+game.addPlayer(player);
+game.addPlayer(computer);
 
-module.exports = { startGame };
+game.dealInitialHand();
+game.play();

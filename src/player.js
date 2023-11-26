@@ -1,11 +1,17 @@
+const Deck = require('./deck');
+
 class Player {
     constructor(name) {
         this.name = name;
         this.hand = [];
-        this.deck = null;
+        this.deck = new Deck();
     }
 
-    // Add other necessary methods for Player as needed
+    drawCard() {
+        const card = this.deck.draw();
+        this.hand.push(card);
+        return card;
+    }
 }
 
 module.exports = Player;

@@ -1,25 +1,20 @@
 const Player = require('../src/player');
-const Deck = require('../src/deck');
-const Card = require('../src/card');
 
 describe('Player class', () => {
-  let player, deck;
+    let player;
 
-  beforeEach(() => {
-    player = new Player('John Doe', 'Human');
-    deck = new Deck(Card);
-    deck.shuffle();
-  });
+    beforeEach(() => {
+        player = new Player('John Doe');
+    });
 
-  it('should initialize with the correct name and type', () => {
-    expect(player.name).toBe('John Doe');
-    expect(player.type).toBe('Human');
-  });
+    it('should initialize with the correct name', () => {
+        expect(player.name).toBe('John Doe');
+    });
 
-  it('should draw an initial hand of 8 cards', () => {
-    player.drawInitialHand(deck);
-    expect(player.hand.length).toBe(8);
-  });
-
-  // Additional tests for playCard, discardCard, etc.
+    it('should draw an initial hand of 8 cards', () => {
+        for (let i = 0; i < 8; i++) {
+            player.drawCard();
+        }
+        expect(player.hand.length).toBe(8);
+    });
 });

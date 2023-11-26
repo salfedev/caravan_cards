@@ -1,17 +1,13 @@
 const Game = require('../src/game');
 const Player = require('../src/player');
-const Card = require('../src/card');
 
 describe('Game', () => {
     let game;
-    let player, computer;
 
     beforeEach(() => {
         game = new Game();
-        player = new Player('Alice');
-        computer = new Player('Bob');
-        game.addPlayer(player);
-        game.addPlayer(computer);
+        game.addPlayer(new Player('Alice'));
+        game.addPlayer(new Player('Bob'));
         game.dealInitialHand();
     });
 
