@@ -1,122 +1,137 @@
-
+const readlineSync = require("readline-sync");
+const Player = require("./player");
 
 class Game {
-  constructor(cardClass, deckClass, logger) {
-    this.deck = new deckClass(cardClass);
-    this.deck.shuffle();
-    this.readline = logger.readlineSync;
-    this.Box = logger.Box;
-    this.playerHand = [];
-    this.dealInitialHand();
+  constructor() {
+    this.players = [];
+    this.currentPlayerIndex = 0;
+    // each player will have 3 caravans
+    // each caravan will be an array of cards
+    this.caravans = [
+      [[], [], []],
+      [[], [], []],
+    ];
+  }
+
+  addPlayer(player) {
+    this.players.push(player);
   }
 
   dealInitialHand() {
-    for (let i = 0; i < 8; i++) {
-      this.playerHand.push(this.deck.draw());
-    }
-  }
-
-  displayHand() {
-    console.log("Your hand:");
-    const handDisplay = this.playerHand.map((card) => card.name);
-    const displayCards = handDisplay.map((card) => this.Box("10x5", card).toString());
-
-    for (let i = 0; i < displayCards[0].split('\n').length; i++) {
-      let line = '';
-      for (const element of displayCards) {
-        line += element.split('\n')[i].padEnd(10);
+    this.players.forEach((player) => {
+      for (let i = 0; i < 8; i++) {
+        player.drawCard();
       }
-      console.log(line);
-    }
+    });
   }
+
+  switchPlayer() {
+    this.currentPlayerIndex =
+      (this.currentPlayerIndex + 1) % this.players.length;
+  }
+
+  isValidMove(caravan, card, lastCard) {
+    if (caravan.length === 0) {
+      return !isNaN(card.value);
+    }
+
+    // Players can place Joker and King cards on any card
+    if (card.value === "Joker" || card.value === "K") {
+      return true;
+    }
+
+    // For other cards, they can only be placed on the last card of the caravan
+    if (lastCard === caravan[caravan.length - 1]) {
+      if (["J", "Q"].includes(card.value)) {
+        return true;
+      }
+
+      if (!isNaN(card.value)) {
+        if (caravan.direction === "ascending") {
+          return parseInt(card.value) > parseInt(lastCard.value);
+        } else if (caravan.direction === "descending") {
+          return parseInt(card.value) < parseInt(lastCard.value);
+        }
+      }
+    }
+
+    return false;
+  }
+
   play() {
     let gameOver = false;
+    let moveCount = 0;
+
     while (!gameOver) {
-      console.log("\nYour turn:");
-      this.displayHand();
+      if (this.currentPlayerIndex === 0) {
+        // Player's turn
+        console.log("Your turn:");
+        // Display the player's hand and caravans
 
-      const action = this.readline.question(
-        "Choose an action (play/discard/end): "
-      );
-
-      switch (action.toLowerCase()) {
-        case "play":
-        case "p":
-          this.playCard();
-          break;
-        case "discard":
-        case "d":
-          this.discardCard();
-          break;
-        case "end":
-        case "e":
-          console.log("Ending game.");
-          gameOver = true;
-          break;
-        default:
-          console.log(
-            "Invalid action. Please choose 'play', 'discard', or 'end'."
+        let validMoveMade = false;
+        while (!validMoveMade) {
+          const cardIndex = readlineSync.questionInt(
+            "Choose a card to play (index): ",
           );
-          break;
+          const caravanIndex = readlineSync.questionInt(
+            "Choose a caravan to place your card (0-2): ",
+          );
+
+          // First 3 moves: player must place a numbered card in each caravan
+          if (moveCount < 3 && isNaN(this.players[0].hand[cardIndex].value)) {
+            console.log(
+              "You must play a numbered card in each of the first three moves.",
+            );
+            continue;
+          }
+
+          // Check if move is valid
+          if (
+            this.isValidMove(
+              this.caravans[caravanIndex],
+              this.players[0].hand[cardIndex],
+              this.caravans[caravanIndex].slice(-1)[0],
+            )
+          ) {
+            const card = this.players[0].hand.splice(cardIndex, 1)[0];
+            this.caravans[caravanIndex].push(card);
+            validMoveMade = true;
+            moveCount++;
+          } else {
+            console.log("Invalid move. Try again.");
+          }
+        }
+      } else {
+        // Computer's turn
+        // Simple AI: Play the first valid card
+        for (let i = 0; i < this.players[1].hand.length; i++) {
+          for (let j = 0; j < this.caravans.length; j++) {
+            if (
+              this.isValidMove(
+                this.caravans[j],
+                this.players[1].hand[i],
+                this.caravans[j].slice(-1)[0],
+              )
+            ) {
+              const card = this.players[1].hand.splice(i, 1)[0];
+              this.caravans[j].push(card);
+              console.log(
+                `Computer played ${card.value} of ${card.suit} on caravan ${j}`,
+              );
+              break;
+            }
+          }
+        }
       }
 
-      // Add logic here for the opponent's turn
-    }
+      this.switchPlayer();
 
-    // opponentTurn() {
-    //   for (let i = 0; i < this.opponentHand.length; i++) {
-    //     const card = this.opponentHand[i];
-    //     // Check if the card is a valid play. This will depend on the rules of your game.
-    //     if (this.isValidPlay(card)) {
-    //       // Play the card and remove it from the opponent's hand
-    //       console.log(`Opponent played ${card.name}`);
-    //       this.opponentHand.splice(i, 1);
-    //       // Add the card to the game context
-    //       this.playCard(card);
-    //       return;
-    //     }
-    //   }
+      // Add logic to check for game over conditions
+      // gameOver = this.checkForGameOver();
 
-    //   // If no valid plays, discard a card
-    //   const discardedCard = this.opponentHand.splice(0, 1)[0];
-    //   console.log(`Opponent discarded ${card.name}`);
-    //   this.discardCard(discardedCard);
-    // }
-
-    console.log("Game over.");
-  }
-
-  playCard() {
-    const cardIndex = this.readline.questionInt(
-      "Enter the index of the card to play (0 to " +
-        (this.playerHand.length - 1) +
-        "): "
-    );
-    if (cardIndex >= 0 && cardIndex < this.playerHand.length) {
-      const card = this.playerHand.splice(cardIndex, 1)[0]; // Remove the card from the player's hand
-      console.log(`Played ${card.name}`);
-      // Add logic to handle played card in the game context
-    } else {
-      console.log("Invalid card index.");
+      // Additional game logic...
     }
   }
-
-  discardCard() {
-    const cardIndex = this.readline.questionInt(
-      "Enter the index of the card to discard (0 to " +
-        (this.playerHand.length - 1) +
-        "): "
-    );
-    if (cardIndex >= 0 && cardIndex < this.playerHand.length) {
-      const card = this.playerHand.splice(cardIndex, 1)[0];
-      console.log(`Discarded ${card.name}`);
-      // Add logic to handle discarded card
-    } else {
-      console.log("Invalid card index.");
-    }
-  }
-
-  // ... Other methods
 }
 
 module.exports = Game;

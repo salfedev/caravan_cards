@@ -1,23 +1,17 @@
+const Deck = require('./deck');
+
 class Player {
-  constructor(name, type) {
-    console.log('player', this);
-    this.name = name;
-    this.type = type;
-    this.hand = [];
-    this.cash = 100;
-  }
-
-  drawInitialHand(deck) {
-    for (let i = 0; i < 8; i++) {
-      this.hand.push(deck.draw());
+    constructor(name) {
+        this.name = name;
+        this.hand = [];
+        this.deck = new Deck();
     }
-  }
 
-  introduce() {
-    console.log(`Player: ${this.name}, Type: ${this.type}`);
-  }
-
-  // ... other methods if needed
+    drawCard() {
+        const card = this.deck.draw();
+        this.hand.push(card);
+        return card;
+    }
 }
 
 module.exports = Player;
